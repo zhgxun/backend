@@ -11,6 +11,13 @@ use yii\widgets\Breadcrumbs;
 use common\widgets\Alert;
 
 AppAsset::register($this);
+
+// Bootstrap默认支持两级菜单,增加该样式显示第三级
+$this->registerCss('
+    .nav .dropdown-submenu  { position:relative; }
+    .nav .dropdown-submenu:hover > .dropdown-menu { display:block; top:5px; left:120px; right:auto; }
+');
+
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -28,26 +35,27 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => 'My Company',
+        'brandLabel' => '读书旅行编程',
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
     ]);
-    $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
-    ];
+//    $menuItems = [
+//        ['label' => '文章', 'url' => ['/site/index']],
+//        ['label' => '每日一语', 'url' => ['/sentence/index']],
+//        ['label' => '推荐阅读', 'url' => ['/recommend/index']],
+//        ['label' => '友情链接', 'url' => ['/link/index']],
+//    ];
     if (Yii::$app->user->isGuest) {
-        $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+        $menuItems[] = ['label' => '登陆', 'url' => ['/site/login']];
     } else {
-        $menuItems[] = '<li>'
-            . Html::beginForm(['/site/logout'], 'post')
-            . Html::submitButton(
-                'Logout (' . Yii::$app->user->identity->username . ')',
-                ['class' => 'btn btn-link']
-            )
-            . Html::endForm()
-            . '</li>';
+        $menuItems = \common\base\Menu::getInstance()->getMenuListKV();
+        $menuItems[] = [
+            'label' => '退出 (' . Yii::$app->user->identity['username'] . ')',
+            'url' => ['/site/logout'],
+            'linkOptions' => ['data-method' => 'post']
+        ];
     }
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
@@ -67,9 +75,9 @@ AppAsset::register($this);
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
+        <p class="pull-left"><small>&copy; 2015 -  <?= date('Y') ?> 读书旅行编程</small></p>
 
-        <p class="pull-right"><?= Yii::powered() ?></p>
+        <p class="pull-right"><small><?= Yii::powered() ?></small></p>
     </div>
 </footer>
 

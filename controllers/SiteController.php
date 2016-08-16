@@ -1,98 +1,221 @@
 <?php
+
 namespace backend\controllers;
 
 use Yii;
-use yii\web\Controller;
-use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
-use common\models\LoginForm;
 
 /**
- * Site controller
+ * 文章管理
  */
-class SiteController extends Controller
+class SiteController extends Base
 {
     /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'rules' => [
-                    [
-                        'actions' => ['login', 'error'],
-                        'allow' => true,
-                    ],
-                    [
-                        'actions' => ['logout', 'index'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function actions()
-    {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-        ];
-    }
-
-    /**
-     * Displays homepage.
-     *
+     * 文章列表
      * @return string
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $query = \common\models\Article::find();
+        $query->where(' `status` != :status', [
+            ':status' => \common\base\Status::Delete,
+        ]);
+        $request = Yii::$app->getRequest()->get();
+        unset($request['r']);
+        if ($request) {
+            if (isset($request['title']) && trim($request['title'])) {
+                $query->andWhere(' `title` LIKE :title', [
+                    ':title' => '%' . trim(strip_tags($request['title'])) . '%',
+                ]);
+            }
+            if (isset($request['type']) && intval($request['type'])) {
+                $query->andWhere(' `type` = :type', [
+                    ':type' => intval($request['type']),
+                ]);
+            }
+            if (isset($request['content']) && trim($request['content'])) {
+                $query->andWhere(' `content` LIKE :content', [
+                    ':content' => '%' . trim(strip_tags($request['content'])) . '%',
+                ]);
+            }
+            if (isset($request['status']) && intval($request['status'])) {
+                $query->andWhere(' `status` = :current', [
+                    ':current' => intval($request['status']),
+                ]);
+            }
+        }
+        $total = $query->count();
+        $pageSize = 20;
+        $pager = new \common\base\Page();
+        $pager->pageName = 'page';
+        $pages = $pager->show($total, $pageSize);
+        $page = isset($request['page']) ? $request['page'] : 1;
+        $offset = $pageSize * ($page - 1);
+        if ($offset >= $total) {
+            $offset = $total;
+        };
+        $query->offset($offset);
+        $query->limit($pageSize);
+        $query->orderBy(' `id` DESC');
+        $list = $query->asArray()->all();
+
+        return $this->render('index', ['pages' => $pages, 'total' => $total, 'list' => $list]);
     }
 
     /**
-     * Login action.
-     *
+     * 文章详情
+     * @param int $id 文章ID
      * @return string
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        $model = $this->getById($id);
+        return $this->render('view', ['model' => $model]);
+    }
+
+    /**
+     * 添加文章
+     * @return string|\yii\web\Response
+     */
+    public function actionCreate()
+    {
+        $model = new \common\models\Article();
+        $model->type = 1;
+        $model->status = 1;
+        if (Yii::$app->getRequest()->getIsPost()) {
+            if (!$model->load(Yii::$app->getRequest()->post())) {
+                return $this->render('update', ['model' => $model]);
+            }
+            $model->userid = Yii::$app->getUser()->getId();
+            $model->ctime = $model->utime = time();
+            if ($model->save()) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
+        }
+
+        return $this->render('create', ['model' => $model]);
+    }
+
+    /**
+     * 编辑文章
+     * @param int $id 文章ID
+     * @return string|\yii\web\Response
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionUpdate($id)
+    {
+        $model = $this->getById($id);
+        if (Yii::$app->getRequest()->getIsPost()) {
+            if (!$model->load(Yii::$app->getRequest()->post())) {
+                return $this->render('update', ['model' => $model]);
+            }
+            $model->userid = Yii::$app->getUser()->getId();
+            $model->utime = time();
+            if ($model->save()) {
+                $key = 'ZouLu:Article:ID:' . intval($id);
+                $redis = \Yii::$app->get('redis');
+                if ($redis && $redis->get($key)) {
+                    $redis->setex($key, 86400, json_encode($model->toArray()));
+                }
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
+        }
+
+        return $this->render('update', ['model' => $model]);
+    }
+
+    /**
+     * 删除文章
+     * @param int $id 文章ID
+     * @return string
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionDelete($id)
+    {
+        $model = $this->getById($id);
+        if ($model->status != \common\base\Status::Delete) {
+            $model->status = \common\base\Status::Delete;
+            $model->utime = time();
+            if ($model->save()) {
+                $key = 'ZouLu:Article:ID:' . intval($id);
+                $redis = \Yii::$app->get('redis');
+                if ($redis) {
+                    $redis->del($key);
+                }
+                return 'yes';
+            }
+        }
+        return 'no';
+    }
+
+    /**
+     * 根据文章ID获得文章对象
+     * @param int $id 文章ID
+     * @return null|static
+     * @throws \yii\web\NotFoundHttpException
+     */
+    protected function getById($id)
+    {
+        $model = \common\models\Article::findOne(intval($id));
+        if ($model !== null) {
+            return $model;
+        }
+        throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+    }
+
+    /**
+     * 上传图片到七牛云存储
+     * @return mixed|string
+     */
+    public function actionUpload()
+    {
+        // 是否有文件上传
+        if (!isset($_FILES['imgFile']) || $_FILES['imgFile']['error'] || !$_FILES['imgFile']['name']) {
+            return json_encode(['error' => 1, 'message' => '没有文件被上传']);
+        }
+        // 扩展名检测
+        if (!in_array($_FILES['imgFile']['type'], ['image/jpeg', 'image/png', 'image/gif'])) {
+            return json_encode(['error' => 1, 'message' => '扩展名不允许']);
+        }
+        $filePath = $_FILES['imgFile']['tmp_name']; // 图片上传后保存的临时路径
+        $fileName = '/zoulu/article/' . date('ymdHis', time()) . $_FILES['imgFile']['name'];
+        if (!file_exists($filePath)) {
+            return json_encode(['error' => 1, 'message' => '临时文件不存在']);
+        }
+        $url = \common\extend\qiniu\Upload::getInstance()->uploadFile($fileName, $filePath);
+        if (isset($url['key']) && $url['key']) {
+            return json_encode(['error' => 0, 'url' => Yii::$app->params['qiniu']['baseurl'] . $url['key']]);
+        } else {
+            \common\base\TaskLog::getInstance()->writeLog(\yii\helpers\Json::encode($url));
+        }
+        unlink($filePath);
+        return json_encode(['error' => 1, 'message' => '图片上传到七牛云存储失败']);
+    }
+
+    /**
+     * 登陆
+     * @return string|\yii\web\Response
      */
     public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) {
+        if (!\Yii::$app->getUser()->getIsGuest()) {
             return $this->goHome();
         }
 
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+        $model = new \common\models\LoginForm();
+        if ($model->load(Yii::$app->getRequest()->post()) && $model->login()) {
             return $this->goBack();
-        } else {
-            return $this->render('login', [
-                'model' => $model,
-            ]);
         }
+        return $this->render('login', ['model' => $model]);
     }
 
     /**
-     * Logout action.
-     *
-     * @return string
+     * 退出
+     * @return \yii\web\Response
      */
     public function actionLogout()
     {
-        Yii::$app->user->logout();
-
+        Yii::$app->getUser()->logout();
         return $this->goHome();
     }
 }

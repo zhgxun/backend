@@ -1,16 +1,17 @@
 <?php
 
-/* @var $this yii\web\View */
+/* @var $this \yii\web\View */
 /* @var $total */
 /* @var $list */
 /* @var $pages */
 
 use yii\helpers\Html;
 
-$this->title = '文章';
+$this->title = '每日一语';
 $this->params['breadcrumbs'][] = $this->title;
+
 ?>
-<div class="article-index">
+<div class="sentence-index">
     <h4><?php echo Html::encode($this->title); ?></h4>
 
     <?php echo $this->render('_search'); ?>
@@ -23,26 +24,28 @@ $this->params['breadcrumbs'][] = $this->title;
         <thead>
             <tr>
                 <th width="5%">ID</th>
-                <th width="45%">标题</th>
-                <th width="10%">类型</th>
-                <th width="15%">创建时间</th>
+                <th width="25%">标题</th>
+                <th width="15%">作者</th>
+                <th width="15%">引自</th>
+                <th width="15%">备注</th>
                 <th width="10%">状态</th>
                 <th width="15%">操作</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($list as $value): ?>
+            <?php foreach($list as $value): ?>
                 <tr>
                     <td><?php echo $value['id']; ?></td>
                     <td><?php echo $value['title']; ?></td>
-                    <td><?php echo \common\base\Navigation::getInstance()->getNameById($value['type']); ?></td>
-                    <td><?php echo date('Y-m-d H:i', $value['ctime']); ?></td>
-                    <td><?php echo \common\base\Article::getInstance()->statusToDes($value['status']); ?></td>
+                    <td><?php echo $value['author']; ?></td>
+                    <td><?php echo $value['quote']; ?></td>
+                    <td><?php echo $value['content']; ?></td>
+                    <td><?php echo \common\base\Sentence::getInstance()->statusToDes($value['status']); ?></td>
                     <td>
                         <?php
-                            echo Html::a('查看', ['view', 'id' => $value['id']], ['target' => '_blank']);
+                            echo Html::a('查看', ['view', 'id' => $value['id']]);
                             echo '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                            echo Html::a('编辑', ['update', 'id' => $value['id']], ['target' => '_blank']);
+                            echo Html::a('编辑', ['update', 'id' => $value['id']]);
                             echo '&nbsp;&nbsp;|&nbsp;&nbsp;';
                             echo Html::a('删除', ['delete', 'id' => $value['id']], ['class' => 'delete']);
                         ?>
@@ -65,7 +68,7 @@ $this->registerJs('
                     if (d == "yes") {
                         window.location.reload();
                     } else {
-                        alert("删除失败,请刷新重试一次");
+                        alert("删除失败,请刷新一次重试");
                         return false;
                     }
                 }

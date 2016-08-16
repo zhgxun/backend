@@ -1,16 +1,17 @@
 <?php
 
-/* @var $this yii\web\View */
+/* @var $this \yii\web\View */
 /* @var $total */
 /* @var $list */
 /* @var $pages */
 
 use yii\helpers\Html;
 
-$this->title = '文章';
+$this->title = '理财记录';
 $this->params['breadcrumbs'][] = $this->title;
+
 ?>
-<div class="article-index">
+<div class="finance-index">
     <h4><?php echo Html::encode($this->title); ?></h4>
 
     <?php echo $this->render('_search'); ?>
@@ -19,30 +20,32 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php \yii\widgets\Pjax::begin(); ?>
     <p class="text-info">共搜索到<?php echo $total; ?>条符合条件的记录</p>
-    <table class="table table-bordered table-hover">
+    <table class="table table-hover table-bordered">
         <thead>
             <tr>
-                <th width="5%">ID</th>
-                <th width="45%">标题</th>
-                <th width="10%">类型</th>
-                <th width="15%">创建时间</th>
-                <th width="10%">状态</th>
-                <th width="15%">操作</th>
+                <th>ID</th>
+                <th>类型</th>
+                <th>项目名称</th>
+                <th>日期</th>
+                <th>花费</th>
+                <th>备注</th>
+                <th>更新时间</th>
+                <th>操作</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($list as $value): ?>
                 <tr>
                     <td><?php echo $value['id']; ?></td>
-                    <td><?php echo $value['title']; ?></td>
-                    <td><?php echo \common\base\Navigation::getInstance()->getNameById($value['type']); ?></td>
-                    <td><?php echo date('Y-m-d H:i', $value['ctime']); ?></td>
-                    <td><?php echo \common\base\Article::getInstance()->statusToDes($value['status']); ?></td>
+                    <td><?php echo \common\base\Finance::getInstance()->typeToDes($value['type']); ?></td>
+                    <td><?php echo $value['name']; ?></td>
+                    <td><?php echo $value['date']; ?></td>
+                    <td><?php echo $value['cost']; ?></td>
+                    <td><?php echo $value['content']; ?></td>
+                    <td><?php echo $value['utime']; ?></td>
                     <td>
                         <?php
-                            echo Html::a('查看', ['view', 'id' => $value['id']], ['target' => '_blank']);
-                            echo '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                            echo Html::a('编辑', ['update', 'id' => $value['id']], ['target' => '_blank']);
+                            echo Html::a('编辑', ['update', 'id' => $value['id']]);
                             echo '&nbsp;&nbsp;|&nbsp;&nbsp;';
                             echo Html::a('删除', ['delete', 'id' => $value['id']], ['class' => 'delete']);
                         ?>
@@ -51,7 +54,6 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php endforeach; ?>
         </tbody>
     </table>
-    <?php echo $pages; ?>
     <?php \yii\widgets\Pjax::end(); ?>
 </div>
 <?php
