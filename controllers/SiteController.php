@@ -112,11 +112,6 @@ class SiteController extends Base
             $model->userid = Yii::$app->getUser()->getId();
             $model->utime = time();
             if ($model->save()) {
-                $key = 'ZouLu:Article:ID:' . intval($id);
-                $redis = \Yii::$app->get('redis');
-                if ($redis && $redis->get($key)) {
-                    $redis->setex($key, 86400, json_encode($model->toArray()));
-                }
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         }
@@ -137,11 +132,6 @@ class SiteController extends Base
             $model->status = \common\base\Status::Delete;
             $model->utime = time();
             if ($model->save()) {
-                $key = 'ZouLu:Article:ID:' . intval($id);
-                $redis = \Yii::$app->get('redis');
-                if ($redis) {
-                    $redis->del($key);
-                }
                 return 'yes';
             }
         }
