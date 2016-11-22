@@ -140,7 +140,7 @@ class SiteController extends Base
 
     /**
      * 根据文章ID获得文章对象
-     * @param int $id 文章ID
+     * @param $id
      * @return null|static
      * @throws \yii\web\NotFoundHttpException
      */

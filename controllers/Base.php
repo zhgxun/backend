@@ -85,6 +85,10 @@ class Base extends Controller
      */
     public function beforeAction($action)
     {
+        // 如果是文件上传,不验证crsf参数
+        if (in_array($action->id, ['upload'])) {
+            $this->enableCsrfValidation = false;
+        }
         if (!parent::beforeAction($action)) {
             return false;
         }
