@@ -127,7 +127,7 @@ class RecommendController extends Base
     /**
      * 推荐对象
      * @param int $id 记录ID
-     * @return null|static
+     * @return null|object|array
      * @throws \yii\web\NotFoundHttpException
      */
     protected function getById($id)

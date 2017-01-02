@@ -133,7 +133,7 @@ class UserController extends Base
     /**
      * 用户详情
      * @param int $id 用户主键ID
-     * @return null|static
+     * @return null|object|array
      * @throws \yii\web\NotFoundHttpException
      */
     protected function getById($id)

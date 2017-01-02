@@ -121,7 +121,7 @@ class FinanceController extends Base
     /**
      * 记录详情
      * @param $id
-     * @return null|static
+     * @return null|object|array
      * @throws \yii\web\NotFoundHttpException
      */
     protected function getById($id)

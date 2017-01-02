@@ -29,7 +29,7 @@ $status = isset($_GET['status']) ? $_GET['status'] : '';
     <div class="form-group col-lg-2 col-md-2 col-xs-6">
         <?php
             echo Html::label('类型', 'type', ['class' => 'sr-only']);
-            echo Html::dropDownList('type', $type, \common\base\Menu::getInstance()->getStatusKV(), ['class' => 'form-control', 'id' => 'type', 'prompt' => '类型']);
+            echo Html::dropDownList('type', $type, \common\base\Navigation::getInstance()->getNavigationKV(), ['class' => 'form-control', 'id' => 'type', 'prompt' => '类型']);
         ?>
     </div>
 

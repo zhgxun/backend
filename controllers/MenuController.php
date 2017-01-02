@@ -96,7 +96,7 @@ class MenuController extends Base
     /**
      * 通过ID获取菜单详情
      * @param int $id 菜单ID
-     * @return null|static
+     * @return null|object|array
      * @throws \yii\web\NotFoundHttpException
      */
     protected function getById($id)

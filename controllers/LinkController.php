@@ -126,7 +126,7 @@ class LinkController extends Base
     /**
      * 友情链接对象
      * @param int $id 记录ID
-     * @return null|static
+     * @return null|object|array
      * @throws \yii\web\NotFoundHttpException
      */
     protected function getById($id)

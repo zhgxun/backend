@@ -84,7 +84,7 @@ class SiteController extends Base
         $model->status = 1;
         if (Yii::$app->getRequest()->getIsPost()) {
             if (!$model->load(Yii::$app->getRequest()->post())) {
-                return $this->render('update', ['model' => $model]);
+                return $this->render('create', ['model' => $model]);
             }
             $model->userid = Yii::$app->getUser()->getId();
             $model->ctime = $model->utime = time();
@@ -141,7 +141,7 @@ class SiteController extends Base
     /**
      * 根据文章ID获得文章对象
      * @param $id
-     * @return null|static
+     * @return null|object|array
      * @throws \yii\web\NotFoundHttpException
      */
     protected function getById($id)

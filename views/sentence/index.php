@@ -43,8 +43,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?php echo \common\base\Sentence::getInstance()->statusToDes($value['status']); ?></td>
                     <td>
                         <?php
-                            echo Html::a('查看', ['view', 'id' => $value['id']]);
-                            echo '&nbsp;&nbsp;|&nbsp;&nbsp;';
                             echo Html::a('编辑', ['update', 'id' => $value['id']]);
                             echo '&nbsp;&nbsp;|&nbsp;&nbsp;';
                             echo Html::a('删除', ['delete', 'id' => $value['id']], ['class' => 'delete']);
