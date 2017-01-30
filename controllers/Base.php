@@ -19,19 +19,48 @@ class Base extends Controller
     {
         parent::init();
         //记录请求详细日志
+        $ip = \Yii::$app->getRequest()->getUserIP();
+        $method = \Yii::$app->getRequest()->getMethod();
+        $userHost = \Yii::$app->getRequest()->getUserHost();
+        $userAgent = \Yii::$app->getRequest()->getUserAgent();
+        $hostInfo = \Yii::$app->getRequest()->getHostInfo();
+        $requestUri = strtolower(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['DOCUMENT_URI']);
+        $get = \yii\helpers\Json::encode($_GET);
+        $post = \yii\helpers\Json::encode($_POST);
+        $rawBody = \Yii::$app->getRequest()->getRawBody();
+        $requestUserId = \Yii::$app->getUser()->getId() ? : 0;
+
+        // 该部分日志记录到文件中
         $requestLog = [
-            'IP]' . \Yii::$app->getRequest()->getUserIP(),
-            'Method]' . \Yii::$app->getRequest()->getMethod(),
-            'UserHost]' . \Yii::$app->getRequest()->getUserHost(),
-            'UserAgent]' . \Yii::$app->getRequest()->getUserAgent(),
-            'HostInfo]' . \Yii::$app->getRequest()->getHostInfo(),
-            'ReqUri]' . strtolower(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['DOCUMENT_URI']),
-            'Get]' . \yii\helpers\Json::encode($_GET),
-            'Post]' . \yii\helpers\Json::encode($_POST),
-            'rawBody]' . \Yii::$app->getRequest()->getRawBody(),
-            'RequestUserID]' . \Yii::$app->getUser()->getId() ? : 0,
+            'IP]' . $ip,
+            'Method]' . $method,
+            'UserHost]' . $userHost,
+            'UserAgent]' . $userAgent,
+            'HostInfo]' . $hostInfo,
+            'ReqUri]' . $requestUri,
+            'Get]' . $get,
+            'Post]' . $post,
+            'rawBody]' . $rawBody,
+            'RequestUserID]' . $requestUserId,
         ];
         \common\base\TaskLog::getInstance()->writeLog($requestLog);
+
+        // 该部分日志记录到elasticsearch中
+        unset($requestLog);
+        $requestLog = [
+            'type' => 'backend',
+            'ip' => $ip,
+            'method' => $method,
+            'user_host' => $userHost,
+            'user_agent' => $userAgent,
+            'host_info' => $hostInfo,
+            'request_uri' => $requestUri,
+            'get' => $get,
+            'post' => $post,
+            'raw_body' => $rawBody,
+            'request_user_id' => $requestUserId
+        ];
+        \common\base\log\RequestLog::getInstance()->add($requestLog);
     }
 
     /**
