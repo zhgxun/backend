@@ -47,20 +47,24 @@ class Base extends Controller
 
         // 该部分日志记录到elasticsearch中
         unset($requestLog);
-        $requestLog = [
-            'type' => 'backend',
-            'ip' => $ip,
-            'method' => $method,
-            'user_host' => $userHost,
-            'user_agent' => $userAgent,
-            'host_info' => $hostInfo,
-            'request_uri' => $requestUri,
-            'get' => $get,
-            'post' => $post,
-            'raw_body' => $rawBody,
-            'request_user_id' => $requestUserId
-        ];
-        \common\base\log\RequestLog::getInstance()->add($requestLog);
+        try {
+            $requestLog = [
+                'type' => 'backend',
+                'ip' => $ip,
+                'method' => $method,
+                'user_host' => $userHost,
+                'user_agent' => $userAgent,
+                'host_info' => $hostInfo,
+                'request_uri' => $requestUri,
+                'get' => $get,
+                'post' => $post,
+                'raw_body' => $rawBody,
+                'request_user_id' => $requestUserId
+            ];
+            \common\base\log\RequestLog::getInstance()->add($requestLog);
+        } catch (\Exception $e) {
+            // elasticsearch error
+        }
     }
 
     /**
