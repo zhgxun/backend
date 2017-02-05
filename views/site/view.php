@@ -35,6 +35,10 @@ $this->registerCss('
             <td><?php echo $model->title; ?></td>
         </tr>
         <tr>
+            <th>摘要</th>
+            <td><?php echo $model->summary; ?></td>
+        </tr>
+        <tr>
             <th>类型</th>
             <td><?php echo \common\base\Navigation::getInstance()->getNameById($model->type); ?></td>
         </tr>

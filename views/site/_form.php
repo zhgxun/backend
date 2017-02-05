@@ -24,6 +24,8 @@ $this->registerCss('
 
     <?php echo $form->field($model, 'content')->textarea(['class' => 'text'])->label('文章内容'); ?>
 
+    <?php echo $form->field($model, 'summary')->textarea()->label('摘要'); ?>
+
     <?php echo $form->field($model, 'remark')->textarea(['rows' => 4])->label('备注'); ?>
 
     <?php echo $form->field($model, 'status')->radioList(\common\base\Article::getInstance()->getStatusKV())->label('状态'); ?>

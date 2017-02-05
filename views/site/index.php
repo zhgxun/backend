@@ -23,7 +23,8 @@ $this->params['breadcrumbs'][] = $this->title;
         <thead>
             <tr>
                 <th width="5%">ID</th>
-                <th width="45%">标题</th>
+                <th width="25%">标题</th>
+                <th width="20%">摘要</th>
                 <th width="10%">类型</th>
                 <th width="15%">创建时间</th>
                 <th width="10%">状态</th>
@@ -35,6 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <tr>
                     <td><?php echo $value['id']; ?></td>
                     <td><?php echo $value['title']; ?></td>
+                    <td><?php echo $value['summary']; ?></td>
                     <td><?php echo \common\base\Navigation::getInstance()->getNameById($value['type']); ?></td>
                     <td><?php echo date('Y-m-d H:i', $value['ctime']); ?></td>
                     <td><?php echo \common\base\Article::getInstance()->statusToDes($value['status']); ?></td>
