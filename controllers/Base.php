@@ -49,6 +49,7 @@ class Base extends Controller
         unset($requestLog);
         try {
             $requestLog = [
+                'date' => date('Y-m-d H:i:s'),
                 'type' => 'backend',
                 'ip' => $ip,
                 'method' => $method,
