@@ -127,6 +127,9 @@ class SiteController extends Base
      */
     public function actionDelete($id)
     {
+        /**
+         * @var $model \common\models\Article
+         */
         $model = $this->getById($id);
         if ($model->status != \common\base\Status::Delete) {
             $model->status = \common\base\Status::Delete;
