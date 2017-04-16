@@ -1,5 +1,5 @@
 <?php
-if (defined(YII_DEBUG) && YII_DEBUG) {
+if (YII_DEBUG) {
     $params = array_merge(
         require(__DIR__ . '/../../common/config/params.php'),
         require(__DIR__ . '/../../common/config/params-local.php'),
