@@ -35,7 +35,7 @@ $this->registerCss('
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => '小步',
+        'brandLabel' => '小步文章发布系统',
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
@@ -75,7 +75,7 @@ $this->registerCss('
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left"><small>&copy; 2015 -  <?= date('Y') ?> 小步</small></p>
+        <p class="pull-left"><small>&copy; 2015 -  <?= date('Y') ?> 小步文章发布系统</small></p>
 
         <p class="pull-right"><small><?= Yii::powered() ?></small></p>
     </div>
